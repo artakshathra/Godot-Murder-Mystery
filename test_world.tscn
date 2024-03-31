@@ -1,0 +1,105 @@
+[gd_scene load_steps=12 format=3 uid="uid://c1grnh8mnf3ic"]
+
+[ext_resource type="PackedScene" uid="uid://cc1m2a1obsyn4" path="res://addons/fpc/character.tscn" id="1_e18vq"]
+[ext_resource type="Script" path="res://test_world.gd" id="1_nin6t"]
+[ext_resource type="Shader" path="res://Models/textures/sky.gdshader" id="1_tr3ok"]
+[ext_resource type="Texture2D" uid="uid://hhwhw5rpik4s" path="res://Models/textures/stars.png" id="2_r5s5q"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_duuoh"]
+shader = ExtResource("1_tr3ok")
+shader_parameter/day_top_color = Color(0.1, 0.6, 1, 1)
+shader_parameter/day_bottom_color = Color(0.4, 0.8, 1, 1)
+shader_parameter/sunset_top_color = Color(0.0196078, 0, 0.0392157, 1)
+shader_parameter/sunset_bottom_color = Color(0.101961, 0, 0.2, 1)
+shader_parameter/night_top_color = Color(0.0196078, 0, 0.0392157, 1)
+shader_parameter/night_bottom_color = Color(0.101961, 0, 0.2, 1)
+shader_parameter/horizon_color = Color(0.101961, 0, 0.2, 1)
+shader_parameter/horizon_blur = 0.05
+shader_parameter/sun_color = Color(10, 8, 1, 1)
+shader_parameter/sun_sunset_color = Color(10, 0, 0, 1)
+shader_parameter/sun_size = 0.2
+shader_parameter/sun_blur = 10.0
+shader_parameter/moon_color = Color(1, 0.94902, 0.701961, 1)
+shader_parameter/moon_size = 0.06
+shader_parameter/moon_blur = 0.1
+shader_parameter/clouds_edge_color = Color(0.8, 0.8, 0.98, 1)
+shader_parameter/clouds_top_color = Color(1, 1, 1, 1)
+shader_parameter/clouds_middle_color = Color(0.92, 0.92, 0.98, 1)
+shader_parameter/clouds_bottom_color = Color(0.83, 0.83, 0.94, 1)
+shader_parameter/clouds_speed = 2.0
+shader_parameter/clouds_direction = 0.2
+shader_parameter/clouds_scale = 1.0
+shader_parameter/clouds_cutoff = 0.3
+shader_parameter/clouds_fuzziness = 0.5
+shader_parameter/clouds_weight = 0.0
+shader_parameter/clouds_blur = 0.25
+shader_parameter/stars_speed = 1.0
+shader_parameter/stars_scale = 1.0
+shader_parameter/stars_opacity = 1.0
+shader_parameter/stars_texture = ExtResource("2_r5s5q")
+shader_parameter/overwritten_time = 0.0
+
+[sub_resource type="Sky" id="Sky_lvlo0"]
+sky_material = SubResource("ShaderMaterial_duuoh")
+
+[sub_resource type="Environment" id="Environment_4gw43"]
+background_mode = 2
+sky = SubResource("Sky_lvlo0")
+tonemap_mode = 2
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.14902, 0.168627, 0.192157, 1)
+fog_density = 0.04
+fog_sky_affect = 0.7
+
+[sub_resource type="Gradient" id="Gradient_ur0vy"]
+colors = PackedColorArray(0, 0.476245, 0.0193456, 1, 0.360494, 0.612721, 0.119744, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_jd3pw"]
+frequency = 0.0027
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rl1ia"]
+width = 1024
+height = 1024
+in_3d_space = true
+seamless = true
+color_ramp = SubResource("Gradient_ur0vy")
+noise = SubResource("FastNoiseLite_jd3pw")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_67ysu"]
+albedo_texture = SubResource("NoiseTexture2D_rl1ia")
+uv1_scale = Vector3(0.1, 0.1, 0.1)
+uv1_triplanar = true
+
+[node name="test_world" type="Node3D"]
+script = ExtResource("1_nin6t")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_4gw43")
+
+[node name="Character" parent="." instance=ExtResource("1_e18vq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+JUMP = "jump"
+LEFT = "left"
+RIGHT = "right"
+FORWARD = "forward"
+BACKWARD = "back"
+
+[node name="terrain" type="Node3D" parent="."]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="terrain"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 10)
+use_collision = true
+size = Vector3(30, 1, 30)
+material = SubResource("StandardMaterial3D_67ysu")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.776046, 0, 0.630676, 0.615964, -0.214735, -0.757943, 0.135428, 0.976672, -0.166645, 0, 0, 0)
+rotation_order = 4
+light_energy = 0.0
+shadow_enabled = true
+shadow_opacity = 0.75
+shadow_blur = 5.0
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.919135, 0.0343343, -0.392443, 0, 0.996195, 0.0871557, 0.393942, -0.0801079, 0.915638, 8.35464, 20.2619, 7.48316)
